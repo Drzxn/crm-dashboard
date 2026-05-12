@@ -1,40 +1,65 @@
-// backend/src/models/user.model.js
+const mongoose =
+    require("mongoose");
 
-const mongoose = require('mongoose');
-const bcrypt = require("bcryptjs");
+const userSchema =
+    new mongoose.Schema(
 
-const userSchema = new mongoose.Schema({
-    name: String,
-    email: { type: String, unique: true },
-    password: String,
-    role: {
-        type: String,
-        enum: ['admin', 'tl', 'sales'],
-        default: 'sales',
-    },
-    managerId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        default: null
-    },
+        {
 
-    resetPasswordToken: String,
-    resetPasswordExpire: Date,
+            name: {
+                type: String,
+                required: true,
+            },
 
-}, { timestamps: true });
+            email: {
+                type: String,
+                required: true,
+                unique: true,
+            },
 
+            password: {
+                type: String,
+                required: true,
+            },
 
-// 🔥 HASH PASSWORD BEFORE SAVING
-userSchema.pre("save", async function () {
-    if (!this.isModified("password")) return;
+            role: {
+                type: String,
+                enum: [
+                    "admin",
+                    "tl",
+                    "sales",
+                ],
+                default: "sales",
+            },
 
-    this.password = await bcrypt.hash(this.password, 10);
-});
+            // IMPORTANT FIX
 
+            managerId: {
+                type:
+                    mongoose.Schema.Types.ObjectId,
 
-// (Optional but good practice)
-userSchema.methods.comparePassword = async function (enteredPassword) {
-    return await bcrypt.compare(enteredPassword, this.password);
-};
+                ref: "User",
 
-module.exports = mongoose.model('User', userSchema);
+                default: null,
+            },
+
+            status: {
+                type: String,
+                enum: [
+                    "active",
+                    "inactive",
+                ],
+                default: "active",
+            },
+        },
+
+        {
+            timestamps: true,
+        }
+    );
+
+module.exports =
+    mongoose.model(
+        "User",
+        userSchema
+    );
